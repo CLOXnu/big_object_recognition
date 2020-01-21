@@ -5,6 +5,7 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.keras import models, layers
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+import tensorflow_hub as hub
 
 import os
 import matplotlib.pyplot as plt
@@ -12,14 +13,18 @@ import matplotlib.pyplot as plt
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
 checkpoint_path = 'training_ckpt/'
-IMG_HEIGHT = 192
-IMG_WIDTH = 192
+IMG_HEIGHT = 224
+IMG_WIDTH = 224
 
 
 # %%
 
 def load_model():
-    model = models.load_model('training_res/model.h5')
+    model_url = "https://hub.tensorflow.google.cn/google/tf2-preview/mobilenet_v2/feature_vector/2"
+    mobile_net = hub.KerasLayer(model_url, input_shape=(224,224,3))
+    mobile_net.trainable = False
+
+    model = models.load_model('training_res/model_mobilenetv2')
     return model
 
 def load_labelname(path):
@@ -69,24 +74,15 @@ def plot_pre(pre, labels):
 # %%
 
 def create_model():
+    model_url = "https://hub.tensorflow.google.cn/google/tf2-preview/mobilenet_v2/feature_vector/2"
+    mobile_net = hub.KerasLayer(model_url, input_shape=(224,224,3))
+    mobile_net.trainable = False
     # mobile_net = tf.keras.applications.MobileNetV2(input_shape=(IMG_HEIGHT, IMG_WIDTH, 3), include_top=False)
     # mobile_net.trainable=False
 
     model = models.Sequential([
-        # mobile_net,
-        # layers.GlobalAveragePooling2D(),
-        # layers.Dense(16, activation = 'softmax')
-        layers.Conv2D(16, 3, padding='same', activation='relu', input_shape=(IMG_HEIGHT, IMG_WIDTH, 3)),
-        layers.MaxPooling2D(),
-        layers.Dropout(0.2),
-        layers.Conv2D(32, 3, padding='same', activation='relu'),
-        layers.MaxPooling2D(),
-        layers.Conv2D(64, 3, padding='same', activation='relu'),
-        layers.MaxPooling2D(),
-        layers.Dropout(0.2),
-        layers.Flatten(),
-        layers.Dense(512, activation='relu'),
-        layers.Dense(16, activation='softmax')
+        mobile_net,
+        layers.Dense(8, activation = 'softmax')
     ])
     model.compile(
         optimizer='adam',
@@ -99,7 +95,7 @@ def save_weights(model):
     model.save_weights(checkpoint_path + 'weights')
 
 def load_weights(model):
-    model.load_weights(checkpoint_path + 'weights')
+    model.load_weights('training_res/model_mobilenetv2.h5')
     return model
 
 
@@ -109,7 +105,7 @@ def load_weights(model):
 if __name__ == "__main__":
     resizeTo = [IMG_HEIGHT, IMG_WIDTH]
     class_path = 'picture/all'
-    img_path = 'picture/test/48.jpg'
+    img_path = 'picture/test/212.jpg'
 
     labels = load_labelname(class_path)
     img = load_image(img_path, resizeTo)
