@@ -10,7 +10,7 @@
 
 ### 测试模型
 
-目前 ***最新模型*** 保存在 ```training_res/model_mobilenetv2```，测试步骤如下：
+目前 ***最新模型*** 保存在 ```training_res/model_mobilenetv2_2```，测试步骤如下：
 
 1. 将要测试的图片放入 ```picture/test/``` 目录下，简单命名。
 
