@@ -24,7 +24,7 @@ def load_model():
     mobile_net = hub.KerasLayer(model_url, input_shape=(224,224,3))
     mobile_net.trainable = False
 
-    model = models.load_model('training_res/model_mobilenetv2')
+    model = models.load_model('training_res/model_mobilenetv2_2')
     return model
 
 def load_labelname(path):
@@ -105,7 +105,7 @@ def load_weights(model):
 if __name__ == "__main__":
     resizeTo = [IMG_HEIGHT, IMG_WIDTH]
     class_path = 'picture/all'
-    img_path = 'picture/test/212.jpg'
+    img_path = 'picture/test/214.jpg'
 
     labels = load_labelname(class_path)
     img = load_image(img_path, resizeTo)
